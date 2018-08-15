@@ -7,25 +7,19 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
-    
-    var defaults = UserDefaults.standard
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = Item()
-        newItem.title = "Hafız nassın?"
-        itemArray.append(newItem)
+        loadItems()
         
-        
-        if let items = defaults.array(forKey: "ToDoListArray") as? [Item]{
-
-            itemArray = items
-        }
     }
 
    //MARK - Tableview Datasource Methods
@@ -52,7 +46,7 @@ class TodoListViewController: UITableViewController {
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
     
-        tableView.reloadData()
+        saveItems()
         
         tableView.deselectRow(at: indexPath, animated: true)
        
@@ -69,13 +63,13 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default)
         { (action) in
             //what happens when clicked
-            
-            let newItem = Item()
+        
+            let newItem = Item(context: self.context)
             newItem.title = textField.text!
+            newItem.done = false
             
             self.itemArray.append(newItem)
-            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
-            self.tableView.reloadData()
+            self.saveItems()
         }
         
         alert.addTextField
@@ -86,6 +80,25 @@ class TodoListViewController: UITableViewController {
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+    }
+    
+    //MARK - Model Manipulation Methods
+    func saveItems(){
+        do{
+            try context.save()
+        } catch {
+            print("error saving context \(error)")
+        }
+        self.tableView.reloadData()
+    }
+    
+    func loadItems(){
+        let request :NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+        itemArray = try context.fetch(request)
+        } catch {
+            print("error fetching data \(error)")
+        }
     }
     
 }
