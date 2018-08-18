@@ -9,6 +9,8 @@
 import UIKit
 import CoreData
 
+
+
 class CategoryTableViewController: UITableViewController {
     
     var categories = [Category]()
@@ -17,7 +19,8 @@ class CategoryTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
     }
 
     override func didReceiveMemoryWarning() {
@@ -43,7 +46,7 @@ class CategoryTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! TodoListViewController
         if let indexPath = tableView.indexPathForSelectedRow{
@@ -51,9 +54,26 @@ class CategoryTableViewController: UITableViewController {
         }
     }
     
-    //MARK: - Add New Categories
     
-    
+    func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+        
+            let categoryToDelete = categories[indexPath.row]
+            context.delete(categoryToDelete)
+            categories.remove(at: indexPath.row)
+            
+            
+            saveCategories()
+            
+        }
+
+    }
+
+   
     //MARK: - Tableview Data Manipulation Methods
     
     func saveCategories(){
@@ -76,7 +96,7 @@ class CategoryTableViewController: UITableViewController {
             print("error loading categories \(error)")
         }
     }
-    
+       //MARK: - Add New Categories
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
         

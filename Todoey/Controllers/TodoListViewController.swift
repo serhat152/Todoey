@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 
+
 class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
@@ -103,14 +104,11 @@ class TodoListViewController: UITableViewController {
         if let additioalPredicate = predicate {
             request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additioalPredicate])
             
-        } else{
+        } else {
             
-            request.predicate = categoryPredicate 
+            request.predicate = categoryPredicate
         }
-//        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
-//
-//        request.predicate = compoundPredicate
-        
+
         do {
         itemArray = try context.fetch(request)
         } catch {
